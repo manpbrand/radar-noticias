@@ -97,8 +97,9 @@
     "id": "ojogo",
     "name": "O JOGO",
     "website": "https://www.ojogo.pt/",
-    "feedUrl": null,
-    "category": "Desporto"
+    "feedUrl": "https://news.google.com/rss/search?q=site%3Aojogo.pt%20when%3A1d&hl=pt-PT&gl=PT&ceid=PT:pt",
+    "category": "Desporto",
+    "mode": "google-news-rss"
   },
   {
     "id": "record",
