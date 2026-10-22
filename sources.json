@@ -47,14 +47,16 @@
     "name": "DAZN Portugal",
     "website": "https://www.dazn.com/pt-PT/news",
     "feedUrl": null,
-    "category": "Desporto"
+    "category": "Desporto",
+    "googleFeedUrl": "https://news.google.com/rss/search?q=site%3Adazn.com%2Fpt-PT%2Fnews%20when%3A7d&hl=pt-PT&gl=PT&ceid=PT:pt"
   },
   {
     "id": "flashscore",
     "name": "Flashscore Portugal",
     "website": "https://www.flashscore.pt/noticias/",
     "feedUrl": null,
-    "category": "Desporto"
+    "category": "Desporto",
+    "googleFeedUrl": "https://news.google.com/rss/search?q=site%3Aflashscore.pt%2Fnoticias%20when%3A7d&hl=pt-PT&gl=PT&ceid=PT:pt"
   },
   {
     "id": "ojogo",
@@ -77,14 +79,16 @@
     "name": "SPORT TV",
     "website": "https://www.sporttv.pt/noticias",
     "feedUrl": null,
-    "category": "Desporto"
+    "category": "Desporto",
+    "googleFeedUrl": "https://news.google.com/rss/search?q=site%3Asporttv.pt%20when%3A7d&hl=pt-PT&gl=PT&ceid=PT:pt"
   },
   {
     "id": "tntsports",
     "name": "TNT Sports",
     "website": "https://www.tntsports.co.uk/",
     "feedUrl": null,
-    "category": "Desporto"
+    "category": "Desporto",
+    "googleFeedUrl": "https://news.google.com/rss/search?q=site%3Atntsports.co.uk%20when%3A7d&hl=pt-PT&gl=PT&ceid=PT:pt"
   },
   {
     "id": "bolanarede",
@@ -105,7 +109,8 @@
     "name": "OneFootball",
     "website": "https://onefootball.com/en/home",
     "feedUrl": null,
-    "category": "Futebol"
+    "category": "Futebol",
+    "googleFeedUrl": "https://news.google.com/rss/search?q=site%3Aonefootball.com%20when%3A7d&hl=pt-PT&gl=PT&ceid=PT:pt"
   },
   {
     "id": "athletic",
@@ -132,15 +137,17 @@
     "id": "cyclingweekly",
     "name": "Cycling Weekly",
     "website": "https://www.cyclingweekly.com/",
-    "feedUrl": null,
-    "category": "Ciclismo"
+    "feedUrl": "https://www.cyclingweekly.com/feeds.xml",
+    "category": "Ciclismo",
+    "googleFeedUrl": "https://news.google.com/rss/search?q=site%3Acyclingweekly.com%20when%3A7d&hl=pt-PT&gl=PT&ceid=PT:pt"
   },
   {
     "id": "cyclingnews",
     "name": "Cyclingnews",
     "website": "https://www.cyclingnews.com/",
-    "feedUrl": null,
-    "category": "Ciclismo"
+    "feedUrl": "https://www.cyclingnews.com/feeds.xml",
+    "category": "Ciclismo",
+    "googleFeedUrl": "https://news.google.com/rss/search?q=site%3Acyclingnews.com%20when%3A7d&hl=pt-PT&gl=PT&ceid=PT:pt"
   },
   {
     "id": "topcycling",
@@ -199,7 +206,8 @@
     "name": "FutsalPlanet",
     "website": "https://www.futsalplanet.com/default.aspx",
     "feedUrl": null,
-    "category": "Futsal"
+    "category": "Futsal",
+    "mode": "listing-html"
   },
   {
     "id": "f1pt",
@@ -234,7 +242,8 @@
     "name": "HóqueiPT",
     "website": "https://hoqueipt.com/",
     "feedUrl": null,
-    "category": "Hóquei em patins"
+    "category": "Hóquei em patins",
+    "mode": "listing-html"
   },
   {
     "id": "blitz",
