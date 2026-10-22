@@ -31,6 +31,58 @@ def request(url):
         b=response.read(2600001)
         if len(b)>2600000:raise ValueError('Conteúdo demasiado grande')
         return b.decode(response.headers.get_content_charset() or 'utf-8','replace')
+
+def clean_image(value,base):
+    if not value:return None
+    url=valid_url(urljoin(base,html.unescape(str(value).strip())))
+    if not url:return None
+    path=urlsplit(url).path.lower()
+    if path.endswith(('.svg','.gif','.ico')) or re.search(r'/(?:favicon|avatar|pixel|tracker|1x1)(?:[./_-]|$)',path):return None
+    return url
+class ImageHTML(HTMLParser):
+    def __init__(self,base):
+        super().__init__();self.base=base;self.meta=[];self.images=[]
+    def handle_starttag(self,tag,attrs):
+        a=dict(attrs)
+        if tag=='meta':
+            key=(a.get('property') or a.get('name') or a.get('itemprop') or '').lower()
+            if key in ('og:image','og:image:url','twitter:image','twitter:image:src','image'):
+                val=clean_image(a.get('content'),self.base)
+                if val:self.meta.append(val)
+        elif tag=='link' and 'image_src' in (a.get('rel') or '').lower():
+            val=clean_image(a.get('href'),self.base)
+            if val:self.meta.append(val)
+        elif tag=='img':
+            value=a.get('src') or a.get('data-src') or a.get('data-lazy-src') or ''
+            val=clean_image(value,self.base)
+            if val:self.images.append(val)
+def image_in_html(raw,base,allow_first_img=False):
+    try:
+        p=ImageHTML(base);p.feed(raw)
+        return (p.meta[0] if p.meta else p.images[0] if allow_first_img and p.images else None)
+    except Exception:return None
+def image_in_feed(item,base,description=''):
+    priority=[];later=[]
+    for child in item.iter():
+        tag=local(child.tag)
+        if tag=='thumbnail':
+            val=clean_image(child.attrib.get('url') or child.attrib.get('href'),base)
+            if val:priority.append(val)
+        elif tag in ('content','enclosure'):
+            mime=(child.attrib.get('type') or '').lower()
+            medium=(child.attrib.get('medium') or '').lower()
+            u=child.attrib.get('url') or child.attrib.get('href')
+            if ('image/' in mime or medium=='image' or u and re.search(r'\.(?:jpe?g|webp|png)(?:\?|$)',u,re.I)):
+                val=clean_image(u,base)
+                if val:later.append(val)
+        elif tag=='image' and child is not item:
+            u=child.attrib.get('url') or ''.join(child.itertext()).strip()
+            val=clean_image(u,base)
+            if val:later.append(val)
+    if priority:return priority[0]
+    if later:return later[0]
+    return image_in_html(description,base,allow_first_img=True)
+
 def datetime_original(value):
     if not value:return None
     try:t=dt.datetime.fromisoformat(value.strip().replace('Z','+00:00'))
@@ -39,11 +91,11 @@ def datetime_original(value):
         except (TypeError,ValueError,IndexError):return None
     if not t or not t.tzinfo or t.year<1990 or t>NOW()+dt.timedelta(days=1):return None
     return STAMP(t)
-def record(s,title,link,when,summary='',precision='minute',localdate=None):
+def record(s,title,link,when,summary='',precision='minute',localdate=None,image=None):
     url=valid_url(link)
     if not title or not url:return None
     uid=hashlib.sha256((s['id']+'|'+url).encode()).hexdigest()[:24]
-    return {'id':uid,'sourceId':s['id'],'title':tidy(title,210),'url':url,'publishedAt':when,'datePrecision':precision if when or precision=='day' else 'unknown','localDate':localdate,'summary':tidy(summary,260),'firstSeenAt':STAMP()}
+    return {'id':uid,'sourceId':s['id'],'title':tidy(title,210),'url':url,'publishedAt':when,'datePrecision':precision if when or precision=='day' else 'unknown','localDate':localdate,'summary':tidy(summary,260),'firstSeenAt':STAMP(),'imageUrl':clean_image(image,url)}
 class Feeds(HTMLParser):
     def __init__(self,site):super().__init__();self.site=site;self.candidates=[]
     def handle_starttag(self,tag,attrs):
@@ -72,7 +124,7 @@ def parse_feed(s,raw):
         link=valid_url(urljoin(s['website'],link))
         pub=datetime_original(text(node,'pubdate','published','issued','date'))
         description=text(node,'description','summary','encoded','content')
-        a=record(s,title,link,pub,description)
+        a=record(s,title,link,pub,description,image=image_in_feed(node,link,description))
         if a:result.append(a)
         if len(result)>=130:break
     if not result:raise ValueError('Feed sem artigos legíveis')
@@ -139,6 +191,7 @@ def iso_day(s):
     except (ValueError,TypeError):return None
 def metadata_from_article(url):
     raw=request(url)
+    image=image_in_html(raw,url)
     for key in ('article:published_time','datePublished','dateCreated','publish_date','pubdate'):
         patterns=[
           r'<meta[^>]+(?:property|name)=["\x27]'+re.escape(key)+r'["\x27][^>]+content=["\x27]([^"\x27]+)',
@@ -150,10 +203,11 @@ def metadata_from_article(url):
             if m:
                 value=html.unescape(m.group(1))
                 timestamp=datetime_original(value)
-                if timestamp:return timestamp,None
+                if timestamp:return timestamp,None,image
                 day=iso_day(value[:10])
-                if day:return None,day
-    return None,None
+                if day:return None,day,image
+    return None,None,image
+
 def listing(s,page,allowed,max_entries=14,default_day=None):
     raw=request(page);p=ArticleLinks(page);p.feed(raw);unique={}
     for url,body,alt in p.links:
@@ -169,7 +223,7 @@ def listing(s,page,allowed,max_entries=14,default_day=None):
         if clean not in unique:unique[clean]=(title,body)
     result=[]
     for url,(title,body) in list(unique.items())[:max_entries]:
-        date=None;when=None
+        date=None;when=None;photo=None
         if s['id']=='fcporto':
             m=re.search(r'/noticias/(\d{4})(\d{2})(\d{2})-',url)
             if m:date=iso_day('-'.join(m.groups()))
@@ -177,15 +231,15 @@ def listing(s,page,allowed,max_entries=14,default_day=None):
             m=re.search(r'\b([0-3]?\d)/([01]?\d)/(\d{4})\b',body)
             if m:date=iso_day(f'{m.group(3)}-{int(m.group(2)):02d}-{int(m.group(1)):02d}')
         try:
-            exact,article_day=metadata_from_article(url)
+            exact,article_day,photo=metadata_from_article(url)
             if exact:when=exact
             elif article_day:date=article_day
         except Exception:pass
         if not date and default_day:date=default_day
         if when:
-            a=record(s,title,url,when)
+            a=record(s,title,url,when,image=photo)
         else:
-            a=record(s,title,url,None,precision='day' if date else 'unknown',localdate=date)
+            a=record(s,title,url,None,precision='day' if date else 'unknown',localdate=date,image=photo)
         if a:result.append(a)
     if not result:raise ValueError('Listagem sem artigos reconhecidos')
     return result
@@ -203,7 +257,7 @@ def expresso_blitz(s):
         title=tidy(text(news,'title'),210)
         date=datetime_original(pub)
         if title and date:
-            a=record(s,title,loc,date)
+            a=record(s,title,loc,date,image=next((clean_image(text(c,'loc'),loc) for c in item.iter() if local(c.tag)=='image' and text(c,'loc')),None))
             if a:rows.append(a)
     if not rows:raise ValueError('Sitemap disponível, mas sem notícias BLITZ com data de publicação')
     return rows[:70]
@@ -266,9 +320,28 @@ def main():
                 new=[]
             statuses[s['id']]=status
             for item in new:
-                if item['id'] in articles:item['firstSeenAt']=articles[item['id']].get('firstSeenAt',item['firstSeenAt'])
+                if item['id'] in articles:
+                    old=articles[item['id']]
+                    item['firstSeenAt']=old.get('firstSeenAt',item['firstSeenAt'])
+                    if not item.get('imageUrl') and old.get('imageUrl'):item['imageUrl']=old['imageUrl']
+                    if old.get('imageCheckedAt'):item['imageCheckedAt']=old['imageCheckedAt']
                 articles[item['id']]=item
             print(s['name'],status['status'],len(new),status.get('reason',''),file=sys.stderr)
+    # Procurar fotografias dos artigos sem media RSS, com limite por fonte para evitar carga excessiva.
+    def inspect_picture(article):
+        try:return article,image_in_html(request(article['url']),article['url'])
+        except Exception:return article,None
+    candidates=[]
+    for src in sources:
+        rows=[a for a in articles.values() if a.get('sourceId')==src['id'] and not a.get('imageUrl') and not a.get('imageCheckedAt')]
+        rows.sort(key=lambda a:a.get('publishedAt') or a.get('firstSeenAt') or '',reverse=True)
+        candidates.extend(rows[:5])
+    if candidates:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
+            for article,photo in pool.map(inspect_picture,candidates):
+                article['imageCheckedAt']=STAMP()
+                if photo:article['imageUrl']=photo
+    print('Radar: '+str(sum(bool(a.get('imageUrl')) for a in articles.values()))+' artigos com fotografia original',file=sys.stderr)
     cutoff=NOW()-dt.timedelta(days=60)
     active={s['id'] for s in sources}
     filtered=[]
