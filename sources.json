@@ -68,7 +68,7 @@
     "id": "24noticias",
     "name": "24 Notícias",
     "website": "https://24noticias.sapo.pt/",
-    "feedUrl": null,
+    "feedUrl": "https://24noticias.sapo.pt/feed",
     "category": "Atualidade"
   },
   {
