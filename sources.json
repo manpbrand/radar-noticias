@@ -1,0 +1,150 @@
+[
+  {
+    "id": "fcporto-ws",
+    "name": "Portal dos Dragões",
+    "website": "https://www.fcporto.ws/",
+    "feedUrl": "https://www.fcporto.ws/feed/",
+    "category": "FC Porto"
+  },
+  {
+    "id": "superportistas",
+    "name": "Super Portistas",
+    "website": "https://superportistas.pt/",
+    "feedUrl": "https://superportistas.pt/feed/",
+    "category": "FC Porto"
+  },
+  {
+    "id": "dragaodoente",
+    "name": "Dragão Doente",
+    "website": "https://dragaodoente.blogspot.com/",
+    "feedUrl": "https://dragaodoente.blogspot.com/feeds/posts/default?alt=rss",
+    "category": "FC Porto"
+  },
+  {
+    "id": "bolanarede",
+    "name": "Bola na Rede",
+    "website": "https://bolanarede.pt/",
+    "feedUrl": "https://bolanarede.pt/feed/",
+    "category": "Desporto"
+  },
+  {
+    "id": "visaodemercado",
+    "name": "Visão de Mercado",
+    "website": "https://blogvisaodemercado.pt/",
+    "feedUrl": "https://blogvisaodemercado.pt/feed/",
+    "category": "Desporto"
+  },
+  {
+    "id": "zerozero",
+    "name": "zerozero",
+    "website": "https://www.zerozero.pt/",
+    "feedUrl": "https://www.zerozero.pt/rss/noticias.php",
+    "category": "Desporto"
+  },
+  {
+    "id": "maisfutebol",
+    "name": "Maisfutebol",
+    "website": "https://maisfutebol.iol.pt/",
+    "feedUrl": "https://maisfutebol.iol.pt/rss.xml",
+    "category": "Desporto"
+  },
+  {
+    "id": "bolamarela",
+    "name": "Bola Amarela",
+    "website": "https://bolamarela.pt/",
+    "feedUrl": null,
+    "category": "Desporto"
+  },
+  {
+    "id": "blitz",
+    "name": "BLITZ",
+    "website": "https://expresso.pt/blitz",
+    "feedUrl": null,
+    "category": "Música"
+  },
+  {
+    "id": "24noticias",
+    "name": "24 Notícias",
+    "website": "https://24noticias.sapo.pt/",
+    "feedUrl": null,
+    "category": "Atualidade"
+  },
+  {
+    "id": "futsalportugal",
+    "name": "Futsal Portugal",
+    "website": "https://futsalportugal.com/pt",
+    "feedUrl": null,
+    "category": "Desporto"
+  },
+  {
+    "id": "pplware",
+    "name": "Pplware",
+    "website": "https://pplware.sapo.pt/",
+    "feedUrl": "https://pplware.sapo.pt/feed/",
+    "category": "Tecnologia"
+  },
+  {
+    "id": "abola",
+    "name": "A BOLA",
+    "website": "https://www.abola.pt/",
+    "feedUrl": "https://www.abola.pt/rss-articles.xml",
+    "category": "Desporto"
+  },
+  {
+    "id": "ojogo",
+    "name": "O JOGO",
+    "website": "https://www.ojogo.pt/",
+    "feedUrl": null,
+    "category": "Desporto"
+  },
+  {
+    "id": "record",
+    "name": "Record",
+    "website": "https://www.record.pt/",
+    "feedUrl": "https://www.record.pt/rss/",
+    "category": "Desporto"
+  },
+  {
+    "id": "fcporto",
+    "name": "FC Porto — Oficial",
+    "website": "https://www.fcporto.pt/pt",
+    "feedUrl": null,
+    "category": "FC Porto"
+  },
+  {
+    "id": "formula1",
+    "name": "Fórmula 1",
+    "website": "https://www.formula1.com/",
+    "feedUrl": "https://www.formula1.com/en/latest/all.xml",
+    "category": "Desporto"
+  },
+  {
+    "id": "afatv",
+    "name": "AFA TV",
+    "website": "https://afatv.pt/",
+    "feedUrl": null,
+    "category": "Desporto"
+  },
+  {
+    "id": "chesscom",
+    "name": "Chess.com",
+    "website": "https://www.chess.com/",
+    "feedUrl": "https://www.chess.com/rss/news",
+    "category": "Desporto"
+  },
+  {
+    "id": "athletic",
+    "name": "The Athletic",
+    "website": "https://www.nytimes.com/athletic/uk/",
+    "feedUrl": "https://www.nytimes.com/athletic/rss/football/",
+    "category": "Desporto"
+  },
+  {
+    "id": "correiodeazemeis",
+    "name": "Correio de Azeméis",
+    "website": "https://correiodeazemeis.sapo.pt/",
+    "feedUrl": null,
+    "category": "Atualidade local",
+    "mode": "correio-html"
+  }
+]

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#111e34">
+  <meta name="description" content="Radar — Notícias. As tuas fontes, numa só página, por data de publicação.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Radar">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./assets/icon.svg">
+  <link rel="icon" type="image/svg+xml" href="./assets/icon.svg">
+  <link rel="stylesheet" href="./assets/styles.css">
+  <title>Radar — Notícias</title>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <a class="brand" href="./" aria-label="Radar — início">
+        <span class="brand-icon" aria-hidden="true">R<span class="brand-dot"></span></span>
+        <span class="brand-text"><strong>RADAR</strong><small>NOTÍCIAS</small></span>
+      </a>
+      <div class="sidebar-label">A MINHA LEITURA</div>
+      <nav class="nav" aria-label="Vistas">
+        <button class="nav-link active" data-view="all"><span>▤</span><span>Feed completo</span><span class="nav-num" id="nav-all">0</span></button>
+        <button class="nav-link" data-view="unread"><span>◉</span><span>Por ler</span><span class="nav-num" id="nav-unread">0</span></button>
+        <button class="nav-link" data-view="saved"><span>☆</span><span>Guardadas</span><span class="nav-num" id="nav-saved">0</span></button>
+      </nav>
+      <div class="sidebar-label sources-label">PUBLICAÇÕES <span id="sources-number">21</span></div>
+      <div class="source-list" id="source-list" aria-label="Filtrar por fonte"></div>
+      <div class="sidebar-foot"><span class="foot-led"></span> O teu agregador de notícias<br><span>Gratuito · Independente</span></div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <div class="mobile-brand"><span class="mobile-brand-icon">R<span></span></span><strong>RADAR</strong></div>
+        <div class="top-label">A TUA CENTRAL DE NOTÍCIAS</div>
+        <div class="top-actions">
+          <span class="status-pill" id="health-pill"><span class="status-led"></span> Por verificar</span>
+          <button class="icon-btn" id="theme-toggle" aria-label="Alternar tema" title="Alternar tema">◐</button>
+          <button class="icon-btn" id="about-toggle" aria-label="Informações e instalação" title="Informações e instalação">?</button>
+        </div>
+      </header>
+      <section class="hero">
+        <div class="eyebrow"><span class="eyebrow-line"></span> O TEU PONTO DE INFORMAÇÃO</div>
+        <h1>As notícias que <em>importam.</em><br>Num só lugar.</h1>
+        <p>21 publicações. Um único feed. As notícias mais recentes em primeiro lugar, com ligação direta à origem.</p>
+        <div class="stats">
+          <div><strong id="stat-articles">—</strong><span>Notícias disponíveis</span></div>
+          <span class="stat-divider"></span>
+          <div><strong id="stat-sources">21</strong><span>Fontes escolhidas</span></div>
+          <span class="stat-divider"></span>
+          <div><strong id="stat-active">—</strong><span>Fontes operacionais</span></div>
+        </div>
+      </section>
+      <div class="workspace">
+        <div class="section-header"><div><div class="eyebrow eyebrow-small">ATUALIZAÇÃO CONTÍNUA</div><h2 id="section-title">Últimas notícias <span class="thin" id="result-count"></span></h2></div><button class="refresh-btn" id="refresh-btn" title="Recarregar o feed">↻ <span>Atualizar</span></button></div>
+        <div class="toolbar">
+          <div class="search-wrap"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Pesquisar notícias..." aria-label="Pesquisar notícias" autocomplete="off"></div>
+          <select id="category" aria-label="Filtrar por categoria"><option value="all">Todas as categorias</option></select>
+          <select id="sort" aria-label="Ordem de notícias"><option value="newest">Mais recentes primeiro</option><option value="oldest">Mais antigas primeiro</option></select>
+          <button class="view-toggle active" id="compact" title="Alternar vista" aria-label="Alternar vista compacta">☷</button>
+        </div>
+        <div class="filter-row" id="filter-row"><button class="chip active" data-cat="all">Todas</button></div>
+        <div class="notice" id="freshness" role="status" aria-live="polite">A consultar a última atualização disponível…</div>
+        <div class="article-list" id="article-list"><div class="empty"><div class="empty-orbit">⌁</div><h3>A carregar notícias</h3><p>A consultar os dados das fontes.</p></div></div>
+        <div id="undated-wrap" class="undated-wrap" hidden><div class="undated-title">Publicações sem hora confirmada <span id="undated-count"></span></div><p class="undated-desc">Estas notícias não podem ser ordenadas com rigor ao minuto; aparecem separadamente para preservar a precisão do feed.</p><div id="undated-list" class="article-list"></div></div>
+      </div>
+      <footer>RADAR — NOTÍCIAS <span>·</span> Os títulos e conteúdos pertencem aos respetivos autores e publicações.</footer>
+    </main>
+  </div>
+  <nav class="mobile-nav" aria-label="Vistas no telemóvel">
+    <button data-mobile-view="all" class="active"><span>▤</span>Feed</button><button data-mobile-view="unread"><span>◉</span>Por ler</button><button data-mobile-view="saved"><span>☆</span>Guardadas</button><button id="mobile-sources"><span>☷</span>Fontes</button>
+  </nav>
+  <dialog id="about-dialog" class="dialog"><div class="dialog-content"><button class="close" id="close-about" aria-label="Fechar">×</button><div class="dialog-icon">R</div><h2>Radar — Notícias</h2><p>Um agregador pessoal feito para as tuas 21 publicações. As notícias com data/hora confirmada são ordenadas pela publicação original, não pela deteção.</p><h3>Instalar no iPhone</h3><p>Abre o endereço no <b>Safari</b>, toca em <b>Partilhar</b> e escolhe <b>Adicionar ao ecrã principal</b>.</p><h3>Atualizações</h3><p>A recolha corre no alojamento configurado. A página verifica a existência de novos dados enquanto está aberta. Não há garantia de atualização imediata após a publicação.</p><h3>Privacidade</h3><p>As notícias por ler e guardadas ficam apenas neste dispositivo. O mesmo estado não é sincronizado entre Chrome e iPhone.</p><h3>Fontes</h3><p>As publicações sem RSS/Atom funcional são identificadas na lista de fontes. Não são geradas notícias fictícias.</p><button class="primary" id="dialog-ok">Compreendido</button></div></dialog>
+  <script src="./assets/app.js" defer></script>
+</body>
+</html>

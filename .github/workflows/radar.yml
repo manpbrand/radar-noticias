@@ -1,0 +1,52 @@
+name: Radar — recolher e publicar
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - news.json
+  workflow_dispatch:
+  schedule:
+    - cron: '7,37 * * * *'
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: radar-pages
+  cancel-in-progress: false
+jobs:
+  radar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Preparar Python no GitHub
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Recolher notícias
+        run: python scripts/collect.py
+      - name: Guardar o histórico
+        shell: bash
+        run: |
+          git config user.name 'Radar Bot'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add news.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Radar: atualizar notícias'
+            git push
+          fi
+      - uses: actions/configure-pages@v5
+      - name: Preparar a página
+        run: |
+          mkdir -p site/assets
+          cp index.html manifest.webmanifest sw.js news.json site/
+          cp assets/* site/assets/
+          touch site/.nojekyll
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site
+      - uses: actions/deploy-pages@v4
+        id: deployment

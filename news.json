@@ -1,0 +1,218 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": null,
+  "sourceCount": 21,
+  "sources": [
+    {
+      "id": "fcporto-ws",
+      "name": "Portal dos Dragões",
+      "website": "https://www.fcporto.ws/",
+      "category": "FC Porto",
+      "status": "pending",
+      "items": 0,
+      "checkedAt": null,
+      "reason": "A primeira recolha ainda não decorreu."
+    },
+    {
+      "id": "superportistas",
+      "name": "Super Portistas",
+      "website": "https://superportistas.pt/",
+      "category": "FC Porto",
+      "status": "pending",
+      "items": 0,
+      "checkedAt": null,
+      "reason": "A primeira recolha ainda não decorreu."
+    },
+    {
+      "id": "dragaodoente",
+      "name": "Dragão Doente",
+      "website": "https://dragaodoente.blogspot.com/",
+      "category": "FC Porto",
+      "status": "pending",
+      "items": 0,
+      "checkedAt": null,
+      "reason": "A primeira recolha ainda não decorreu."
+    },
+    {
+      "id": "bolanarede",
+      "name": "Bola na Rede",
+      "website": "https://bolanarede.pt/",
+      "category": "Desporto",
+      "status": "pending",
+      "items": 0,
+      "checkedAt": null,
+      "reason": "A primeira recolha ainda não decorreu."
+    },
+    {
+      "id": "visaodemercado",
+      "name": "Visão de Mercado",
+      "website": "https://blogvisaodemercado.pt/",
+      "category": "Desporto",
+      "status": "pending",
+      "items": 0,
+      "checkedAt": null,
+      "reason": "A primeira recolha ainda não decorreu."
+    },
+    {
+      "id": "zerozero",
+      "name": "zerozero",
+      "website": "https://www.zerozero.pt/",
+      "category": "Desporto",
+      "status": "pending",
+      "items": 0,
+      "checkedAt": null,
+      "reason": "A primeira recolha ainda não decorreu."
+    },
+    {
+      "id": "maisfutebol",
+      "name": "Maisfutebol",
+      "website": "https://maisfutebol.iol.pt/",
+      "category": "Desporto",
+      "status": "pending",
+      "items": 0,
+      "checkedAt": null,
+      "reason": "A primeira recolha ainda não decorreu."
+    },
+    {
+      "id": "bolamarela",
+      "name": "Bola Amarela",
+      "website": "https://bolamarela.pt/",
+      "category": "Desporto",
+      "status": "pending",
+      "items": 0,
+      "checkedAt": null,
+      "reason": "A primeira recolha ainda não decorreu."
+    },
+    {
+      "id": "blitz",
+      "name": "BLITZ",
+      "website": "https://expresso.pt/blitz",
+      "category": "Música",
+      "status": "pending",
+      "items": 0,
+      "checkedAt": null,
+      "reason": "A primeira recolha ainda não decorreu."
+    },
+    {
+      "id": "24noticias",
+      "name": "24 Notícias",
+      "website": "https://24noticias.sapo.pt/",
+      "category": "Atualidade",
+      "status": "pending",
+      "items": 0,
+      "checkedAt": null,
+      "reason": "A primeira recolha ainda não decorreu."
+    },
+    {
+      "id": "futsalportugal",
+      "name": "Futsal Portugal",
+      "website": "https://futsalportugal.com/pt",
+      "category": "Desporto",
+      "status": "pending",
+      "items": 0,
+      "checkedAt": null,
+      "reason": "A primeira recolha ainda não decorreu."
+    },
+    {
+      "id": "pplware",
+      "name": "Pplware",
+      "website": "https://pplware.sapo.pt/",
+      "category": "Tecnologia",
+      "status": "pending",
+      "items": 0,
+      "checkedAt": null,
+      "reason": "A primeira recolha ainda não decorreu."
+    },
+    {
+      "id": "abola",
+      "name": "A BOLA",
+      "website": "https://www.abola.pt/",
+      "category": "Desporto",
+      "status": "pending",
+      "items": 0,
+      "checkedAt": null,
+      "reason": "A primeira recolha ainda não decorreu."
+    },
+    {
+      "id": "ojogo",
+      "name": "O JOGO",
+      "website": "https://www.ojogo.pt/",
+      "category": "Desporto",
+      "status": "pending",
+      "items": 0,
+      "checkedAt": null,
+      "reason": "A primeira recolha ainda não decorreu."
+    },
+    {
+      "id": "record",
+      "name": "Record",
+      "website": "https://www.record.pt/",
+      "category": "Desporto",
+      "status": "pending",
+      "items": 0,
+      "checkedAt": null,
+      "reason": "A primeira recolha ainda não decorreu."
+    },
+    {
+      "id": "fcporto",
+      "name": "FC Porto — Oficial",
+      "website": "https://www.fcporto.pt/pt",
+      "category": "FC Porto",
+      "status": "pending",
+      "items": 0,
+      "checkedAt": null,
+      "reason": "A primeira recolha ainda não decorreu."
+    },
+    {
+      "id": "formula1",
+      "name": "Fórmula 1",
+      "website": "https://www.formula1.com/",
+      "category": "Desporto",
+      "status": "pending",
+      "items": 0,
+      "checkedAt": null,
+      "reason": "A primeira recolha ainda não decorreu."
+    },
+    {
+      "id": "afatv",
+      "name": "AFA TV",
+      "website": "https://afatv.pt/",
+      "category": "Desporto",
+      "status": "pending",
+      "items": 0,
+      "checkedAt": null,
+      "reason": "A primeira recolha ainda não decorreu."
+    },
+    {
+      "id": "chesscom",
+      "name": "Chess.com",
+      "website": "https://www.chess.com/",
+      "category": "Desporto",
+      "status": "pending",
+      "items": 0,
+      "checkedAt": null,
+      "reason": "A primeira recolha ainda não decorreu."
+    },
+    {
+      "id": "athletic",
+      "name": "The Athletic",
+      "website": "https://www.nytimes.com/athletic/uk/",
+      "category": "Desporto",
+      "status": "pending",
+      "items": 0,
+      "checkedAt": null,
+      "reason": "A primeira recolha ainda não decorreu."
+    },
+    {
+      "id": "correiodeazemeis",
+      "name": "Correio de Azeméis",
+      "website": "https://correiodeazemeis.sapo.pt/",
+      "category": "Atualidade local",
+      "status": "pending",
+      "items": 0,
+      "checkedAt": null,
+      "reason": "A primeira recolha ainda não decorreu."
+    }
+  ],
+  "articles": []
+}

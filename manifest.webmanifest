@@ -1,0 +1,1 @@
+{"name":"Radar — Notícias","short_name":"Radar","description":"As notícias das 21 fontes num só feed.","start_url":"./","scope":"./","display":"standalone","background_color":"#f5f7fb","theme_color":"#132440","lang":"pt-PT","icons":[{"src":"./assets/icon.svg","sizes":"any","type":"image/svg+xml"}]}
