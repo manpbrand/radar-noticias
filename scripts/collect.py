@@ -277,16 +277,13 @@ def html_integration(s):
     raise ValueError('Integração não implementada')
 
 def google_news_ojogo(s,raw):
-    """Resultados do Google Notícias para um leitor pessoal, não um feed oficial de O JOGO.
-    A data pertence ao Google Notícias; nunca é rotulada como data original do jornal.
-    Links permanecem no domínio Google Notícias para não contornar a intermediação.
+    """Google Notícias, para leitura pessoal e não como feed oficial de O JOGO.
+    A data do Google não é convertida na data de publicação oficial do jornal.
     """
     root=ET.fromstring(raw)
-    if local(root.tag)!='rss':
-        raise ValueError('Resposta do Google Notícias sem formato RSS')
+    if local(root.tag)!='rss':raise ValueError('Resposta do Google sem formato RSS')
     channel=next((c for c in root if local(c.tag)=='channel'),None)
-    if channel is None:
-        raise ValueError('Sem canal de resultados do Google Notícias')
+    if channel is None:raise ValueError('Sem canal de resultados do Google Notícias')
     entries=[];seen=set()
     for node in channel:
         if local(node.tag)!='item':continue
@@ -295,15 +292,25 @@ def google_news_ojogo(s,raw):
         source_name=''.join(source.itertext()).strip() if source is not None else ''
         source_url=source.attrib.get('url','') if source is not None else ''
         host=(urlsplit(source_url).hostname or '').removeprefix('www.').lower()
-        is_ojogo=host=='ojogo.pt' or (
-            source is not None and source_name.casefold() in ('o jogo','ojogo')
-        )
-        if not is_ojogo:continue
+        if not (host=='ojogo.pt' or source is not None and source_name.casefold() in ('o jogo','ojogo')):continue
         link=valid_url(text(node,'link'))
         parsed=urlsplit(link or '')
-        if not link or parsed.hostname!='news.google.com' or not parsed.path.startswith('/rss/articles/'):
-            continue
-        title=re.sub(r'\s+-\s+O\s*Jogo
+        if not link or parsed.hostname!='news.google.com' or not parsed.path.startswith('/rss/articles/'):continue
+        title=re.sub(r'\s+-\s+O\s*Jogo$', '', original, flags=re.I).strip()
+        when=datetime_original(text(node,'pubdate'))
+        if not when or not title or link in seen:continue
+        item=record(s,title,link,None,precision='unknown')
+        if not item:continue
+        item['datePrecision']='google'
+        item['googlePublishedAt']=when
+        item['via']='Google Notícias'
+        item['summary']=''
+        entries.append(item);seen.add(link)
+        if len(entries)>=100:break
+    if not entries:raise ValueError('Sem resultados válidos de O JOGO no Google Notícias')
+    return entries
+
+def collect(s):
     status={k:s[k] for k in ('id','name','website','category')}
     status.update(status='pending',checkedAt=STAMP(),items=0,reason='',feedUrl=None)
     if s.get('mode')=='google-news-rss':
@@ -385,8 +392,8 @@ def main():
         if a.get('sourceId') not in active:continue
         if a.get('sourceId')=='ojogo' and a.get('via')=='Google Notícias':
             try:
-                google_date=dt.datetime.fromisoformat(a['googlePublishedAt'].replace('Z','+00:00'))
-                if google_date<NOW()-dt.timedelta(days=3):continue
+                gtime=dt.datetime.fromisoformat(a['googlePublishedAt'].replace('Z','+00:00'))
+                if gtime<NOW()-dt.timedelta(days=3):continue
             except (KeyError,ValueError,TypeError):continue
         try:
             ts=dt.datetime.fromisoformat((a.get('publishedAt') or a['firstSeenAt']).replace('Z','+00:00'))
@@ -399,107 +406,6 @@ def main():
         rows.sort(key=lambda a:a.get('publishedAt') or a.get('firstSeenAt') or '',reverse=True)
         final.extend(rows[:100])
     final.sort(key=lambda a:a.get('publishedAt') or a.get('googlePublishedAt') or a.get('firstSeenAt') or '',reverse=True)
-    data={'schemaVersion':1,'updatedAt':STAMP(),'sourceCount':len(sources),'sources':[statuses[s['id']] for s in sources],'articles':final}
-    dst.write_text(json.dumps(data,ensure_ascii=False,separators=(',',':')),encoding='utf-8')
-    print(f"Radar: {len(final)} artigos, {sum(1 for s in data['sources'] if s['status']=='ok')} fontes operacionais")
-if __name__=='__main__':main()
-, '', original, flags=re.I).strip()
-        when=datetime_original(text(node,'pubdate'))
-        if not when or not title or link in seen:continue
-        # Nunca converter a hora publicada pelo Google na hora original do jornal.
-        item=record(s,title,link,None,precision='unknown')
-        if not item:continue
-        item['datePrecision']='google'
-        item['googlePublishedAt']=when
-        item['via']='Google Notícias'
-        item['summary']=''
-        entries.append(item);seen.add(link)
-        if len(entries)>=100:break
-    if not entries:raise ValueError('Sem resultados válidos de O JOGO no Google Notícias')
-    return entries
-
-def collect(s):
-    status={k:s[k] for k in ('id','name','website','category')}
-    status.update(status='pending',checkedAt=STAMP(),items=0,reason='',feedUrl=None)
-    if s.get('mode')=='listing-html':
-        try:
-            entries=html_integration(s);status.update(status='ok',items=len(entries));return status,entries
-        except Exception as exc:status.update(status='erro',reason=str(exc)[:150]);return status,[]
-    if s.get('mode')=='correio-html':
-        try:
-            entries=correio(s);status.update(status='ok',items=len(entries));return status,entries
-        except Exception as exc:status.update(status='erro',reason=str(exc)[:150]);return status,[]
-    candidates=[s['feedUrl']] if s.get('feedUrl') else []
-    try:
-        parser=Feeds(s['website']);parser.feed(request(s['website']))
-        candidates.extend(parser.candidates[:3])
-    except Exception:pass
-    if not candidates:status.update(status='sem_rss',reason='Não foi detetado feed RSS/Atom público.');return status,[]
-    errors=[]
-    for url in dict.fromkeys(candidates):
-        try:
-            articles=parse_feed(s,request(url))
-            status.update(status='ok',items=len(articles),feedUrl=url)
-            return status,articles
-        except Exception as exc:errors.append((str(exc) or type(exc).__name__)[:75])
-    status.update(status='erro',reason=' | '.join(errors)[:150])
-    return status,[]
-def main():
-    sources=json.loads((ROOT/'sources.json').read_text('utf-8'))
-    dst=ROOT/'news.json'
-    try:previous=json.loads(dst.read_text('utf-8'))
-    except (OSError,ValueError):previous={}
-    articles={a['id']:a for a in previous.get('articles',[]) if isinstance(a,dict) and a.get('id')}
-    statuses={}
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
-        futures={pool.submit(collect,s):s for s in sources}
-        for future in concurrent.futures.as_completed(futures):
-            s=futures[future]
-            try:status,new=future.result()
-            except Exception as exc:
-                status={k:s[k] for k in ('id','name','website','category')}
-                status.update(status='erro',reason=str(exc)[:150],checkedAt=STAMP(),items=0)
-                new=[]
-            statuses[s['id']]=status
-            for item in new:
-                if item['id'] in articles:
-                    old=articles[item['id']]
-                    item['firstSeenAt']=old.get('firstSeenAt',item['firstSeenAt'])
-                    if not item.get('imageUrl') and old.get('imageUrl'):item['imageUrl']=old['imageUrl']
-                    if old.get('imageCheckedAt'):item['imageCheckedAt']=old['imageCheckedAt']
-                articles[item['id']]=item
-            print(s['name'],status['status'],len(new),status.get('reason',''),file=sys.stderr)
-    # Procurar fotografias dos artigos sem media RSS, com limite por fonte para evitar carga excessiva.
-    def inspect_picture(article):
-        try:return article,image_in_html(request(article['url']),article['url'])
-        except Exception:return article,None
-    candidates=[]
-    for src in sources:
-        rows=[a for a in articles.values() if a.get('sourceId')==src['id'] and not a.get('imageUrl') and not a.get('imageCheckedAt')]
-        rows.sort(key=lambda a:a.get('publishedAt') or a.get('firstSeenAt') or '',reverse=True)
-        candidates.extend(rows[:5])
-    if candidates:
-        with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
-            for article,photo in pool.map(inspect_picture,candidates):
-                article['imageCheckedAt']=STAMP()
-                if photo:article['imageUrl']=photo
-    print('Radar: '+str(sum(bool(a.get('imageUrl')) for a in articles.values()))+' artigos com fotografia original',file=sys.stderr)
-    cutoff=NOW()-dt.timedelta(days=60)
-    active={s['id'] for s in sources}
-    filtered=[]
-    for a in articles.values():
-        if a.get('sourceId') not in active:continue
-        try:
-            ts=dt.datetime.fromisoformat((a.get('publishedAt') or a['firstSeenAt']).replace('Z','+00:00'))
-            if ts<cutoff:continue
-        except (ValueError,TypeError,KeyError):continue
-        filtered.append(a)
-    final=[]
-    for source in active:
-        rows=[a for a in filtered if a['sourceId']==source]
-        rows.sort(key=lambda a:a.get('publishedAt') or a.get('firstSeenAt') or '',reverse=True)
-        final.extend(rows[:100])
-    final.sort(key=lambda a:a.get('publishedAt') or a.get('firstSeenAt') or '',reverse=True)
     data={'schemaVersion':1,'updatedAt':STAMP(),'sourceCount':len(sources),'sources':[statuses[s['id']] for s in sources],'articles':final}
     dst.write_text(json.dumps(data,ensure_ascii=False,separators=(',',':')),encoding='utf-8')
     print(f"Radar: {len(final)} artigos, {sum(1 for s in data['sources'] if s['status']=='ok')} fontes operacionais")
