@@ -12,13 +12,13 @@ permissions:
   pages: write
   id-token: write
 concurrency:
-  group: radar-pages
+  group: radar-pages-v2
   cancel-in-progress: false
 jobs:
   radar:
     runs-on: ubuntu-latest
     environment:
-      name: github-pages
+      name: radar-public
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
