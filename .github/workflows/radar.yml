@@ -36,7 +36,9 @@ jobs:
           git add news.json
           if ! git diff --cached --quiet; then
             git commit -m 'Radar: atualizar notícias'
-            git push
+            if ! git push; then
+              echo "::warning::O histórico não foi gravado por existir uma versão mais recente no GitHub. A publicação continua com os artigos recolhidos nesta execução."
+            fi
           fi
       - uses: actions/configure-pages@v5
       - name: Preparar a página
