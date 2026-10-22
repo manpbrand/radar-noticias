@@ -273,6 +273,10 @@ def html_integration(s):
         return listing(s,'https://afatv.pt/news',lambda p:p.startswith('/news-details/'),18)
     if sid=='futsalportugal':
         return listing(s,'https://futsalportugal.com/pt/noticias',lambda p:bool(re.match(r'^/(?:pt/)?news/\d+/',p)),18)
+    if sid=='hoqueipt':
+        return listing(s,'https://hoqueipt.com/',lambda p:bool(re.match(r'^/artigo/\\d+-',p)),20)
+    if sid=='futsalplanet':
+        return listing(s,'https://www.futsalplanet.com/default.aspx',lambda p:p.lower().endswith('/news.aspx'),20)
     if sid=='blitz':return expresso_blitz(s)
     raise ValueError('Integração não implementada')
 
@@ -350,7 +354,9 @@ def collect(s):
         parser=Feeds(s['website']);parser.feed(request(s['website']))
         candidates.extend(parser.candidates[:3])
     except Exception:pass
-    if not candidates:status.update(status='sem_rss',reason='Não foi detetado feed RSS/Atom público.');return status,[]
+    if not candidates and not s.get('googleFeedUrl'):
+        status.update(status='sem_rss',reason='Não foi detetado feed RSS/Atom público.')
+        return status,[]
     errors=[]
     for url in dict.fromkeys(candidates):
         try:
@@ -358,7 +364,16 @@ def collect(s):
             status.update(status='ok',items=len(articles),feedUrl=url)
             return status,articles
         except Exception as exc:errors.append((str(exc) or type(exc).__name__)[:75])
-    status.update(status='erro',reason=' | '.join(errors)[:150])
+    if s.get('googleFeedUrl'):
+        try:
+            articles=google_news_source(s,request(s['googleFeedUrl']))
+            status.update(status='ok',items=len(articles),feedUrl=s['googleFeedUrl'],
+                          reason='Via Google Notícias: data/hora não confirmadas pelo editor; cobertura incompleta.')
+            return status,articles
+        except Exception as exc:
+            errors.append('Google Notícias: '+str(exc)[:90])
+    status.update(status='sem_rss' if not candidates else 'erro',
+                  reason=' | '.join(errors)[:150] or 'Sem fonte RSS/Atom funcional.')
     return status,[]
 def main():
     sources=json.loads((ROOT/'sources.json').read_text('utf-8'))
@@ -391,7 +406,7 @@ def main():
         except Exception:return article,None
     candidates=[]
     for src in sources:
-        rows=[a for a in articles.values() if a.get('sourceId')==src['id'] and src.get('mode')!='google-news-rss' and not a.get('imageUrl') and not a.get('imageCheckedAt')]
+        rows=[a for a in articles.values() if a.get('sourceId')==src['id'] and src.get('mode')!='google-news-rss' and a.get('via')!='Google Notícias' and not a.get('imageUrl') and not a.get('imageCheckedAt')]
         rows.sort(key=lambda a:a.get('publishedAt') or a.get('firstSeenAt') or '',reverse=True)
         candidates.extend(rows[:5])
     if candidates:
