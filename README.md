@@ -44,6 +44,26 @@ Não estão garantidas fotografias da fonte; sem imagem válida aparece a identi
 
 O RSS do Google Notícias declara utilização para apresentação de resultados num leitor pessoal e não comercial. Esta integração destina-se apenas à consulta pessoal, sem revenda, distribuição comercial ou reutilização do feed noutros produtos. Caso a utilização deixe de ser pessoal, deve ser desligada ou substituída por acesso autorizado.
 
+## Fontes e categorias — outubro de 2026
+
+O Radar tem **38 publicações** e apresenta a navegação agrupada por categoria:
+FC Porto (4), Desporto (8), Futebol (6), Ciclismo (4), Ténis (3),
+Futsal (3), F1 (4), Hóquei em patins (1), Música (1), Tecnologia (1),
+Atualidade (1), Atualidade local (1) e Xadrez (1).
+
+Foram acrescentadas TNT Sports, OneFootball, BBC Sport, TopCycling, Cyclingnews,
+Cycling Weekly, Velo, Raquetc, Tennis365, FutsalPlanet, F1PT, PlanetF1,
+The Race, HóqueiPT, SPORT TV, DAZN Portugal e Flashscore Portugal.
+
+**Integração das fontes:** RSS/Atom quando o editor publica feeds válidos;
+extração de metadados públicos quando aplicável; pesquisa indireta
+no Google Notícias como alternativa para determinadas fontes sem RSS público.
+Os resultados indiretos incluem hora do Google, **não** hora oficial do editor,
+e ligações através do Google Notícias. Alguns sites podem não aparecer
+quando não têm notícias recentes ou não existe fonte automática fiável.
+Os sites que não permitem leitura fiável ficam marcados como indisponíveis
+na lista de fontes, nunca com notícias inventadas.
+
 ## Adicionar novas fontes — sem instalar programas
 
 **Método mais fácil:** envia o endereço do site ao ChatGPT para confirmar o RSS, configurar e validar a recolha.
