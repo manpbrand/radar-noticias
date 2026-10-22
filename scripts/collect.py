@@ -276,27 +276,38 @@ def html_integration(s):
     if sid=='blitz':return expresso_blitz(s)
     raise ValueError('Integração não implementada')
 
-def google_news_ojogo(s,raw):
-    """Google Notícias, para leitura pessoal e não como feed oficial de O JOGO.
-    A data do Google não é convertida na data de publicação oficial do jornal.
+def google_news_source(s,raw):
+    """Resultados Google Notícias verificados pelo domínio do editor, não RSS oficial.
+    A hora apresentada é a indicada pelo Google e pode diferir da publicação original.
+    Apenas para leitura pessoal e não comercial, conforme condições do RSS do Google.
     """
     root=ET.fromstring(raw)
     if local(root.tag)!='rss':raise ValueError('Resposta do Google sem formato RSS')
     channel=next((c for c in root if local(c.tag)=='channel'),None)
-    if channel is None:raise ValueError('Sem canal de resultados do Google Notícias')
+    if channel is None:raise ValueError('Sem canal RSS do Google Notícias')
+    domain=(urlsplit(s['website']).hostname or '').removeprefix('www.').lower()
     entries=[];seen=set()
     for node in channel:
         if local(node.tag)!='item':continue
         original=tidy(text(node,'title'),210)
-        source=next((c for c in node if local(c.tag)=='source'),None)
-        source_name=''.join(source.itertext()).strip() if source is not None else ''
-        source_url=source.attrib.get('url','') if source is not None else ''
-        host=(urlsplit(source_url).hostname or '').removeprefix('www.').lower()
-        if not (host=='ojogo.pt' or source is not None and source_name.casefold() in ('o jogo','ojogo')):continue
+        origin=next((c for c in node if local(c.tag)=='source'),None)
+        source_name=''.join(origin.itertext()).strip() if origin is not None else ''
+        source_url=origin.attrib.get('url','') if origin is not None else ''
+        source_host=(urlsplit(source_url).hostname or '').removeprefix('www.').lower()
+        # Evitar fontes noticiosas terceiras que apenas citam a publicação.
+        matches=source_host==domain or source_host.endswith('.'+domain)
+        if not matches and s['id']=='ojogo':
+            matches=source_name.casefold() in ('o jogo','ojogo')
+        if not matches:continue
         link=valid_url(text(node,'link'))
         parsed=urlsplit(link or '')
-        if not link or parsed.hostname!='news.google.com' or not parsed.path.startswith('/rss/articles/'):continue
-        title=re.sub(r'\s+-\s+O\s*Jogo$', '', original, flags=re.I).strip()
+        if not link or parsed.hostname!='news.google.com' or not parsed.path.startswith('/rss/articles/'):
+            continue
+        title=original
+        if ' - ' in title:
+            first,last=title.rsplit(' - ',1)
+            if last.casefold() in (source_name.casefold(),s['name'].casefold(),'o jogo'):
+                title=first
         when=datetime_original(text(node,'pubdate'))
         if not when or not title or link in seen:continue
         item=record(s,title,link,None,precision='unknown')
@@ -307,17 +318,21 @@ def google_news_ojogo(s,raw):
         item['summary']=''
         entries.append(item);seen.add(link)
         if len(entries)>=100:break
-    if not entries:raise ValueError('Sem resultados válidos de O JOGO no Google Notícias')
+    if not entries:raise ValueError('Sem resultados da publicação no Google Notícias')
     return entries
+
+def google_news_ojogo(s,raw):
+    """Compatibilidade com os testes de O JOGO."""
+    return google_news_source(s,raw)
 
 def collect(s):
     status={k:s[k] for k in ('id','name','website','category')}
     status.update(status='pending',checkedAt=STAMP(),items=0,reason='',feedUrl=None)
     if s.get('mode')=='google-news-rss':
         try:
-            entries=google_news_ojogo(s,request(s['feedUrl']))
+            entries=google_news_source(s,request(s['feedUrl']))
             status.update(status='ok',items=len(entries),feedUrl=s['feedUrl'],
-                          reason='Via Google Notícias: horário e cobertura não confirmados por O JOGO.')
+                          reason='Via Google Notícias: data/hora e cobertura não confirmadas pela publicação.')
             return status,entries
         except Exception as exc:
             status.update(status='erro',reason='Google Notícias: '+str(exc)[:125])
