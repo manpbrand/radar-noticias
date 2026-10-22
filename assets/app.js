@@ -25,7 +25,9 @@ function article(a){
 }
 function render(){
  document.documentElement.classList.toggle('theme-dark',pref.theme==='dark');
- const cats=[...new Set(data.sources.map(s=>s.category).filter(Boolean))];
+ const categoryOrder=['FC Porto','Desporto','Futebol','Ciclismo','Ténis','Futsal','F1','Hóquei em patins','Música','Tecnologia','Atualidade','Atualidade local','Xadrez'];
+ const categoryIndex=c=>{const n=categoryOrder.indexOf(c);return n<0?categoryOrder.length:n};
+ const cats=[...new Set(data.sources.map(s=>s.category).filter(Boolean))].sort((a,b)=>categoryIndex(a)-categoryIndex(b)||a.localeCompare(b,'pt'));
  $('#stat-articles').textContent=data.articles.length.toLocaleString('pt-PT');
  $('#stat-sources').textContent=$('#sources-number').textContent=data.sources.length;
  $('#hero-sources').textContent=$('#about-sources').textContent=data.sources.length;
@@ -34,7 +36,9 @@ function render(){
  $('#category').value=cats.includes(pref.category)?pref.category:'all';
  $('#filter-row').innerHTML='<button class="chip '+(pref.category==='all'?'active':'')+'" data-cat="all">Todas</button>'+cats.map(c=>'<button class="chip '+(pref.category===c?'active':'')+'" data-cat="'+esc(c)+'">'+esc(c)+'</button>').join('');
  const sourceHtml=s=>'<button class="source '+(pref.selectedSource===s.id?'selected':'')+'" data-source="'+esc(s.id)+'" title="'+esc(s.name+': '+(s.reason||s.status||'Por verificar'))+'"><span class="source-abbr">'+esc(s.name.slice(0,2).toUpperCase())+'</span><span class="source-name">'+esc(s.name)+'</span><span class="source-status '+esc(s.status||'pending')+'"></span></button>';
- $('#source-list').innerHTML=sourceHtml({id:'all',name:'Todas as fontes',status:'ok'})+data.sources.map(sourceHtml).join('');
+ const orderedSources=[...data.sources].sort((a,b)=>categoryIndex(a.category)-categoryIndex(b.category)||a.name.localeCompare(b.name,'pt'));
+ const groupedSources=cats.map(cat=>'<div class="source-group-header"><span>'+esc(cat)+'</span><span class="source-group-total">'+orderedSources.filter(s=>s.category===cat).length+'</span></div>'+orderedSources.filter(s=>s.category===cat).map(sourceHtml).join('')).join('');
+ $('#source-list').innerHTML=sourceHtml({id:'all',name:'Todas as fontes',status:'ok'})+groupedSources;
  let list=data.articles.filter(a=>a&&a.id&&a.url&&a.title);
  if(pref.selectedSource!=='all')list=list.filter(a=>a.sourceId===pref.selectedSource);
  if(pref.category!=='all')list=list.filter(a=>lookup(a.sourceId).category===pref.category);
