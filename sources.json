@@ -53,14 +53,16 @@
     "name": "Bola Amarela",
     "website": "https://bolamarela.pt/",
     "feedUrl": null,
-    "category": "Desporto"
+    "category": "Desporto",
+    "mode": "listing-html"
   },
   {
     "id": "blitz",
     "name": "BLITZ",
     "website": "https://expresso.pt/blitz",
     "feedUrl": null,
-    "category": "Música"
+    "category": "Música",
+    "mode": "listing-html"
   },
   {
     "id": "24noticias",
@@ -74,7 +76,8 @@
     "name": "Futsal Portugal",
     "website": "https://futsalportugal.com/pt",
     "feedUrl": null,
-    "category": "Desporto"
+    "category": "Desporto",
+    "mode": "listing-html"
   },
   {
     "id": "pplware",
@@ -101,15 +104,17 @@
     "id": "record",
     "name": "Record",
     "website": "https://www.record.pt/",
-    "feedUrl": "https://www.record.pt/rss/",
-    "category": "Desporto"
+    "feedUrl": null,
+    "category": "Desporto",
+    "mode": "listing-html"
   },
   {
     "id": "fcporto",
     "name": "FC Porto — Oficial",
     "website": "https://www.fcporto.pt/pt",
     "feedUrl": null,
-    "category": "FC Porto"
+    "category": "FC Porto",
+    "mode": "listing-html"
   },
   {
     "id": "formula1",
@@ -123,7 +128,8 @@
     "name": "AFA TV",
     "website": "https://afatv.pt/",
     "feedUrl": null,
-    "category": "Desporto"
+    "category": "Desporto",
+    "mode": "listing-html"
   },
   {
     "id": "chesscom",
