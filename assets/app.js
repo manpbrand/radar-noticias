@@ -27,6 +27,7 @@ function render(){
  const cats=[...new Set(data.sources.map(s=>s.category).filter(Boolean))];
  $('#stat-articles').textContent=data.articles.length.toLocaleString('pt-PT');
  $('#stat-sources').textContent=$('#sources-number').textContent=data.sources.length;
+ $('#hero-sources').textContent=$('#about-sources').textContent=data.sources.length;
  $('#stat-active').textContent=data.sources.filter(s=>s.status==='ok').length;
  $('#category').innerHTML='<option value="all">Todas as categorias</option>'+cats.map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join('');
  $('#category').value=cats.includes(pref.category)?pref.category:'all';
