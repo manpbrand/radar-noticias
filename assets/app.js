@@ -16,7 +16,8 @@ const aurl=v=>{try{const u=new URL(v);return ['http:','https:'].includes(u.proto
 function article(a){
  const src=lookup(a.sourceId),saved=pref.saved.includes(a.id);
  const exact=a.datePrecision==='minute'&&valid(a.publishedAt);
- const date=exact?format.format(valid(a.publishedAt)):a.datePrecision==='day'&&a.localDate?a.localDate.split('-').reverse().join('/')+' · hora não indicada':'Data/hora não indicada';
+ const viaGoogle=a.datePrecision==='google'&&valid(a.googlePublishedAt);
+ const date=exact?format.format(valid(a.publishedAt)):viaGoogle?'Google Notícias: '+format.format(valid(a.googlePublishedAt))+' · hora não confirmada por O JOGO':a.datePrecision==='day'&&a.localDate?a.localDate.split('-').reverse().join('/')+' · hora não indicada':'Data/hora não indicada';
  const abbr=src.name.replace(/[^\p{L}\p{N} ]/gu,'').split(' ').filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase();
  const url=esc(aurl(a.url)),image=a.imageUrl?aurl(a.imageUrl):'#';
  const cover='<a class="article-image" target="_blank" rel="noopener noreferrer" href="'+url+'" aria-label="Abrir notícia original: '+esc(a.title)+'"><span class="source-avatar">'+esc(abbr)+'</span>'+(image!=='#'?'<img src="'+esc(image)+'" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" width="116" height="82">':'')+'</a>';
@@ -39,10 +40,12 @@ function render(){
  if(pref.category!=='all')list=list.filter(a=>lookup(a.sourceId).category===pref.category);
  if(pref.view==='saved')list=list.filter(a=>pref.saved.includes(a.id));
  if(pref.query){const needle=pref.query.toLocaleLowerCase('pt-PT');list=list.filter(a=>[a.title,a.summary,lookup(a.sourceId).name].join(' ').toLocaleLowerCase('pt-PT').includes(needle))}
- const exact=list.filter(a=>a.datePrecision==='minute'&&valid(a.publishedAt));
- const other=list.filter(a=>a.datePrecision!=='minute'||!valid(a.publishedAt));
+ const hasTime=a=>(a.datePrecision==='minute'&&valid(a.publishedAt))||(a.datePrecision==='google'&&valid(a.googlePublishedAt));
+ const exact=list.filter(hasTime);
+ const other=list.filter(a=>!hasTime(a));
  const direction=pref.sort==='newest'?-1:1;
- exact.sort((a,b)=>direction*(new Date(a.publishedAt)-new Date(b.publishedAt)));
+ const sortableTime=a=>new Date(a.datePrecision==='google'?a.googlePublishedAt:a.publishedAt).getTime();
+ exact.sort((a,b)=>direction*(sortableTime(a)-sortableTime(b)));
  other.sort((a,b)=>direction*(a.localDate||a.firstSeenAt||'').localeCompare(b.localDate||b.firstSeenAt||''));
  $('#article-list').innerHTML=exact.length?exact.map(article).join(''):'<div class="empty"><div class="empty-orbit">⌁</div><h3>'+(!data.articles.length?'A aguardar notícias reais':'Sem notícias com estes filtros')+'</h3><p>'+(!data.articles.length?'A recolha automática ainda não produziu artigos. Consulta o estado das fontes.':'Experimenta alterar a categoria, a pesquisa ou a publicação.')+'</p></div>';
  $('#undated-wrap').hidden=!other.length;$('#undated-count').textContent='('+other.length+')';$('#undated-list').innerHTML=other.map(article).join('');
@@ -55,7 +58,7 @@ function render(){
  $$('#article-list,#undated-list').forEach(el=>el.classList.toggle('compact-mode',pref.compact));
  $('#sort').value=pref.sort;$('#search').value=pref.query;
  const date=valid(data.updatedAt),stale=!date||Date.now()-date.getTime()>120*60000;
- $('#freshness').textContent=(date?'Última recolha: '+format.format(date):'Ainda não foi executada a recolha inicial')+' · Datas e horas provenientes dos sites originais; artigos sem hora estão separados.';
+ $('#freshness').textContent=(date?'Última recolha: '+format.format(date):'Ainda não foi executada a recolha inicial')+' · As horas de O JOGO via Google Notícias não são horários confirmados pelo jornal; as restantes notícias sem hora estão separadas.';
  $('#health-pill').classList.toggle('offline',stale);
  $('#health-pill').innerHTML='<span class="status-led"></span>'+(stale?'A aguardar atualização':'Dados atualizados');
  save();
