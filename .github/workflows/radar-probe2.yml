@@ -35,11 +35,11 @@ jobs:
             ('Flashscore RSS','https://www.flashscore.pt/rss/')
           ]
           class Links(HTMLParser):
-            def __init__(self,base):super().__init__();self.base=base;self.links=[];self.feed=[];self.a=None
+            def __init__(self,base):super().__init__();self.base=base;self.links=[];self.feeds_found=[];self.a=None
             def handle_starttag(self,tag,attrs):
               a=dict(attrs)
               if tag=='a' and a.get('href'):self.a=[urljoin(self.base,a['href']),[]]
-              if tag=='link' and ('rss' in a.get('type','') or 'atom' in a.get('type','')):self.feed.append(urljoin(self.base,a.get('href','')))
+              if tag=='link' and ('rss' in a.get('type','') or 'atom' in a.get('type','')):self.feeds_found.append(urljoin(self.base,a.get('href','')))
             def handle_data(self,txt):
               if self.a:self.a[1].append(txt.strip())
             def handle_endtag(self,tag):
@@ -64,7 +64,7 @@ jobs:
               except Exception:
                 p=Links(real);p.feed(page)
                 out['links']=p.links[:25]
-                out['feeds']=p.feed
+                out['feeds']=p.feeds_found
                 out['meta']={k:page.lower().count(k.lower()) for k in ('og:image','datePublished','article:published_time','<time','<article','/noticias/','/news/')}
                 out['sample']=re.sub(r'\s+',' ',page[:600])
               return out
