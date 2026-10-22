@@ -162,8 +162,10 @@ def listing(s,page,allowed,max_entries=14,default_day=None):
         if not allowed(u.path):continue
         clean=url.split('?')[0].rstrip('/')
         title=alt if len(alt)>12 else body
-        title=re.sub(r'\s+',' ',title).strip()
-        if len(title)<22 or len(title)>220:continue
+        if s['id']=='afatv':
+            title=re.sub(r'^.*?\b[0-3]?\d/[01]?\d/\d{4}\b\s*','',body)
+        title=re.sub(r'\s+',' ',title).strip()[:205]
+        if len(title)<22:continue
         if clean not in unique:unique[clean]=(title,body)
     result=[]
     for url,(title,body) in list(unique.items())[:max_entries]:
