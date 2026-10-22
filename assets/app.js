@@ -17,7 +17,7 @@ function article(a){
  const src=lookup(a.sourceId),saved=pref.saved.includes(a.id);
  const exact=a.datePrecision==='minute'&&valid(a.publishedAt);
  const viaGoogle=a.datePrecision==='google'&&valid(a.googlePublishedAt);
- const date=exact?format.format(valid(a.publishedAt)):viaGoogle?'Google Notícias: '+format.format(valid(a.googlePublishedAt))+' · hora não confirmada por O JOGO':a.datePrecision==='day'&&a.localDate?a.localDate.split('-').reverse().join('/')+' · hora não indicada':'Data/hora não indicada';
+ const date=exact?format.format(valid(a.publishedAt)):viaGoogle?'Google Notícias: '+format.format(valid(a.googlePublishedAt))+' · hora não confirmada por '+src.name:a.datePrecision==='day'&&a.localDate?a.localDate.split('-').reverse().join('/')+' · hora não indicada':'Data/hora não indicada';
  const abbr=src.name.replace(/[^\p{L}\p{N} ]/gu,'').split(' ').filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase();
  const url=esc(aurl(a.url)),image=a.imageUrl?aurl(a.imageUrl):'#';
  const cover='<a class="article-image" target="_blank" rel="noopener noreferrer" href="'+url+'" aria-label="Abrir notícia original: '+esc(a.title)+'"><span class="source-avatar">'+esc(abbr)+'</span>'+(image!=='#'?'<img src="'+esc(image)+'" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" width="116" height="82">':'')+'</a>';
@@ -62,7 +62,7 @@ function render(){
  $$('#article-list,#undated-list').forEach(el=>el.classList.toggle('compact-mode',pref.compact));
  $('#sort').value=pref.sort;$('#search').value=pref.query;
  const date=valid(data.updatedAt),stale=!date||Date.now()-date.getTime()>120*60000;
- $('#freshness').textContent=(date?'Última recolha: '+format.format(date):'Ainda não foi executada a recolha inicial')+' · As horas de O JOGO via Google Notícias não são horários confirmados pelo jornal; as restantes notícias sem hora estão separadas.';
+ $('#freshness').textContent=(date?'Última recolha: '+format.format(date):'Ainda não foi executada a recolha inicial')+' · Artigos via Google Notícias mostram o horário indicado pelo Google; artigos sem hora confirmada ficam separados.';
  $('#health-pill').classList.toggle('offline',stale);
  $('#health-pill').innerHTML='<span class="status-led"></span>'+(stale?'A aguardar atualização':'Dados atualizados');
  save();
