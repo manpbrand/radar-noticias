@@ -1,0 +1,74 @@
+name: Radar — diagnóstico adicional
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/radar-probe2.yml'
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Inspecionar formatos dos sites sem feed confirmado
+        run: |
+          python - <<'PY'
+          import urllib.request,concurrent.futures,re,json,xml.etree.ElementTree as ET
+          from html.parser import HTMLParser
+          from urllib.parse import urljoin,urlsplit
+          entries=[
+            ('Cyclingnews RSS','https://www.cyclingnews.com/feeds.xml'),
+            ('Cycling Weekly RSS','https://www.cyclingweekly.com/feeds.xml'),
+            ('TNT sport','https://www.tntsports.co.uk/'),
+            ('TNT sport RSS','https://www.tntsports.co.uk/rss.xml'),
+            ('OneFootball','https://onefootball.com/en/home'),
+            ('OneFootball stories','https://onefootball.com/en/news'),
+            ('FutsalPlanet','https://www.futsalplanet.com/default.aspx'),
+            ('HóqueiPT','https://hoqueipt.com/'),
+            ('HóqueiPT news','https://hoqueipt.com/noticias'),
+            ('SPORT TV','https://www.sporttv.pt/noticias'),
+            ('SPORT TV RSS','https://www.sporttv.pt/feed/'),
+            ('DAZN Portugal','https://www.dazn.com/pt-PT/news'),
+            ('DAZN RSS','https://www.dazn.com/pt-PT/news/rss'),
+            ('Flashscore Portugal','https://www.flashscore.pt/noticias/'),
+            ('Flashscore RSS','https://www.flashscore.pt/rss/')
+          ]
+          class Links(HTMLParser):
+            def __init__(self,base):super().__init__();self.base=base;self.links=[];self.feed=[];self.a=None
+            def handle_starttag(self,tag,attrs):
+              a=dict(attrs)
+              if tag=='a' and a.get('href'):self.a=[urljoin(self.base,a['href']),[]]
+              if tag=='link' and ('rss' in a.get('type','') or 'atom' in a.get('type','')):self.feed.append(urljoin(self.base,a.get('href','')))
+            def handle_data(self,txt):
+              if self.a:self.a[1].append(txt.strip())
+            def handle_endtag(self,tag):
+              if tag=='a' and self.a:
+                url,words=self.a
+                title=' '.join(x for x in words if x)[:110]
+                if title and url.startswith('http'):self.links.append((url,title))
+                self.a=None
+          def probe(row):
+            name,url=row
+            try:
+              req=urllib.request.Request(url,headers={'User-Agent':'RadarNoticias/1.2 (personal news reader)','Accept':'text/html,application/rss+xml,application/xml;q=0.8,*/*;q=0.4'})
+              with urllib.request.urlopen(req,timeout=15) as f:
+                raw=f.read(400000);type=f.headers.get('Content-Type');real=f.url
+              out={'name':name,'url':url,'status':200,'length':len(raw),'type':type,'final':real}
+              page=raw.decode('utf-8','replace')
+              try:
+                root=ET.fromstring(raw)
+                out['xmlroot']=root.tag
+                out['count']=sum(1 for item in root.iter() if item.tag.rsplit('}',1)[-1] in ('item','entry'))
+                out['xml_sample']=page[:280]
+              except Exception:
+                p=Links(real);p.feed(page)
+                out['links']=p.links[:25]
+                out['feeds']=p.feed
+                out['meta']={k:page.lower().count(k.lower()) for k in ('og:image','datePublished','article:published_time','<time','<article','/noticias/','/news/')}
+                out['sample']=re.sub(r'\s+',' ',page[:600])
+              return out
+            except Exception as e:return {'name':name,'url':url,'error':str(e)[:200]}
+          with concurrent.futures.ThreadPoolExecutor(max_workers=7) as pool:
+            for res in pool.map(probe,entries):print('PROBE2 '+json.dumps(res,ensure_ascii=False),flush=True)
+          PY
