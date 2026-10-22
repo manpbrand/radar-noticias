@@ -35,6 +35,15 @@ Se o GitHub bloquear a publicação por causa de permissões, verifica em `Setti
 - As notícias guardadas são locais ao navegador, não sincronizadas entre dispositivos.
 - Os feeds são públicos; não há passwords, contas externas, paywalls contornados nem scraping agressivo.
 
+## O JOGO — distribuição indireta pelo Google Notícias
+
+A fonte **O JOGO** usa o RSS de pesquisa do Google Notícias (`site:ojogo.pt when:1d`), não um RSS do jornal.
+O leitor apresenta **a data/hora do Google Notícias**, devidamente identificada; **não** garante a hora original de publicação de O JOGO. Os links passam pelo Google Notícias e poderão redirecionar para o artigo do jornal.
+A pesquisa não garante cobertura integral nem deteção instantânea. Não há tentativa de contornar restrições do website do jornal.
+Não estão garantidas fotografias da fonte; sem imagem válida aparece a identificação da publicação.
+
+O RSS do Google Notícias declara utilização para apresentação de resultados num leitor pessoal e não comercial. Esta integração destina-se apenas à consulta pessoal, sem revenda, distribuição comercial ou reutilização do feed noutros produtos. Caso a utilização deixe de ser pessoal, deve ser desligada ou substituída por acesso autorizado.
+
 ## Adicionar novas fontes — sem instalar programas
 
 **Método mais fácil:** envia o endereço do site ao ChatGPT para confirmar o RSS, configurar e validar a recolha.
