@@ -43,7 +43,7 @@
       <section class="hero">
         <div class="eyebrow"><span class="eyebrow-line"></span> O TEU PONTO DE INFORMAÇÃO</div>
         <h1>As notícias que <em>importam.</em><br>Num só lugar.</h1>
-        <p>21 publicações. Um único feed. As notícias mais recentes em primeiro lugar, com ligação direta à origem.</p>
+        <p><span id="hero-sources">21</span> publicações. Um único feed. As notícias mais recentes em primeiro lugar, com ligação direta à origem.</p>
         <div class="stats">
           <div><strong id="stat-articles">—</strong><span>Notícias disponíveis</span></div>
           <span class="stat-divider"></span>
@@ -71,7 +71,7 @@
   <nav class="mobile-nav" aria-label="Vistas no telemóvel">
     <button data-mobile-view="all" class="active"><span>▤</span>Feed</button><button data-mobile-view="saved"><span>☆</span>Guardadas</button><button id="mobile-sources"><span>☷</span>Fontes</button>
   </nav>
-  <dialog id="about-dialog" class="dialog"><div class="dialog-content"><button class="close" id="close-about" aria-label="Fechar">×</button><div class="dialog-icon">R</div><h2>Radar — Notícias</h2><p>Um agregador pessoal feito para as tuas 21 publicações. As notícias com data/hora confirmada são ordenadas pela publicação original, não pela deteção.</p><h3>Instalar no iPhone</h3><p>Abre o endereço no <b>Safari</b>, toca em <b>Partilhar</b> e escolhe <b>Adicionar ao ecrã principal</b>.</p><h3>Atualizações</h3><p>A recolha corre no alojamento configurado. A página verifica a existência de novos dados enquanto está aberta. Não há garantia de atualização imediata após a publicação.</p><h3>Privacidade</h3><p>As notícias guardadas ficam apenas neste dispositivo. O mesmo estado não é sincronizado entre Chrome e iPhone.</p><h3>Fontes</h3><p>As publicações sem RSS/Atom funcional são identificadas na lista de fontes. Não são geradas notícias fictícias.</p><button class="primary" id="dialog-ok">Compreendido</button></div></dialog>
+  <dialog id="about-dialog" class="dialog"><div class="dialog-content"><button class="close" id="close-about" aria-label="Fechar">×</button><div class="dialog-icon">R</div><h2>Radar — Notícias</h2><p>Um agregador pessoal feito para as tuas <span id="about-sources">21</span> publicações. As notícias com data/hora confirmada são ordenadas pela publicação original, não pela deteção.</p><h3>Instalar no iPhone</h3><p>Abre o endereço no <b>Safari</b>, toca em <b>Partilhar</b> e escolhe <b>Adicionar ao ecrã principal</b>.</p><h3>Atualizações</h3><p>A recolha corre no alojamento configurado. A página verifica a existência de novos dados enquanto está aberta. Não há garantia de atualização imediata após a publicação.</p><h3>Privacidade</h3><p>As notícias guardadas ficam apenas neste dispositivo. O mesmo estado não é sincronizado entre Chrome e iPhone.</p><h3>Fontes</h3><p>As publicações sem RSS/Atom funcional são identificadas na lista de fontes. Não são geradas notícias fictícias.</p><h3>Adicionar fontes</h3><p>Podes enviar-me um novo website no ChatGPT ou <a href="https://github.com/manpbrand/radar-noticias/edit/main/sources.json" target="_blank" rel="noopener noreferrer" style="text-decoration:underline;color:var(--blue)">editar diretamente a lista de fontes no GitHub</a>. Depois de guardar, o Radar tenta recolher as notícias automaticamente. Sites sem RSS podem precisar de uma integração específica.</p><button class="primary" id="dialog-ok">Compreendido</button></div></dialog>
   <script src="./assets/app.js" defer></script>
 </body>
 </html>
