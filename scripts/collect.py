@@ -274,7 +274,7 @@ def html_integration(s):
     if sid=='futsalportugal':
         return listing(s,'https://futsalportugal.com/pt/noticias',lambda p:bool(re.match(r'^/(?:pt/)?news/\d+/',p)),18)
     if sid=='hoqueipt':
-        return listing(s,'https://hoqueipt.com/',lambda p:bool(re.match(r'^/artigo/\\d+-',p)),20)
+        return listing(s,'https://hoqueipt.com/',lambda p:bool(re.match(r'^/artigo/\d+-',p)),20)
     if sid=='futsalplanet':
         return listing(s,'https://www.futsalplanet.com/default.aspx',lambda p:p.lower().endswith('/news.aspx'),20)
     if sid=='blitz':return expresso_blitz(s)
@@ -420,10 +420,10 @@ def main():
     filtered=[]
     for a in articles.values():
         if a.get('sourceId') not in active:continue
-        if a.get('sourceId')=='ojogo' and a.get('via')=='Google Notícias':
+        if a.get('via')=='Google Notícias':
             try:
                 gtime=dt.datetime.fromisoformat(a['googlePublishedAt'].replace('Z','+00:00'))
-                if gtime<NOW()-dt.timedelta(days=3):continue
+                if gtime<NOW()-dt.timedelta(days=7):continue
             except (KeyError,ValueError,TypeError):continue
         try:
             ts=dt.datetime.fromisoformat((a.get('publishedAt') or a['firstSeenAt']).replace('Z','+00:00'))
