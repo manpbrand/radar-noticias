@@ -265,7 +265,8 @@
     "name": "24 Notícias",
     "website": "https://24noticias.sapo.pt/",
     "feedUrl": "https://24noticias.sapo.pt/feed",
-    "category": "Atualidade"
+    "category": "Atualidade",
+    "googleFeedUrl": "https://news.google.com/rss/search?q=site%3A24noticias.sapo.pt%20when%3A7d&hl=pt-PT&gl=PT&ceid=PT:pt"
   },
   {
     "id": "correiodeazemeis",
