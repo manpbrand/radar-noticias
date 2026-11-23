@@ -102,7 +102,8 @@
     "name": "Maisfutebol",
     "website": "https://maisfutebol.iol.pt/",
     "feedUrl": "https://maisfutebol.iol.pt/rss.xml",
-    "category": "Futebol"
+    "category": "Futebol",
+    "googleFeedUrl": "https://news.google.com/rss/search?q=site%3Amaisfutebol.iol.pt%20when%3A7d&hl=pt-PT&gl=PT&ceid=PT:pt"
   },
   {
     "id": "onefootball",
