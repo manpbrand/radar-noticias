@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Radar: recolha pública, sem credenciais, sem dependências extra."""
 import concurrent.futures,datetime as dt,email.utils,hashlib,html,json,re,sys,time
+from zoneinfo import ZoneInfo
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urljoin,urlsplit
@@ -375,6 +376,31 @@ def collect(s):
     status.update(status='sem_rss' if not candidates else 'erro',
                   reason=' | '.join(errors)[:150] or 'Sem fonte RSS/Atom funcional.')
     return status,[]
+# Janela de visibilidade: 120 horas para horários conhecidos, cinco dias civis
+# (incluindo hoje) para fontes que publicam apenas a data.
+RECENT_DAYS=5
+def recent_article(article,now=None):
+    now=now or NOW()
+    if article.get('datePrecision')=='day' and article.get('localDate'):
+        try:
+            day=dt.date.fromisoformat(article['localDate'])
+            today=now.astimezone(ZoneInfo('Europe/Lisbon')).date()
+            return today-dt.timedelta(days=RECENT_DAYS-1)<=day<=today
+        except (TypeError,ValueError):return False
+    # Datas de agregadores são distintas das horas originais do editor.
+    if article.get('via')=='Google Notícias' or article.get('datePrecision')=='google':
+        stamp=article.get('googlePublishedAt')
+    else:
+        # Sem data de publicação, limitar pela primeira deteção, sem a
+        # apresentar como se fosse a data oficial de publicação.
+        stamp=article.get('publishedAt') or article.get('firstSeenAt')
+    if not isinstance(stamp,str):return False
+    try:
+        timestamp=dt.datetime.fromisoformat(stamp.replace('Z','+00:00'))
+        if timestamp.tzinfo is None:return False
+        return now-dt.timedelta(days=RECENT_DAYS)<=timestamp<=now+dt.timedelta(minutes=5)
+    except (ValueError,TypeError):return False
+
 def main():
     sources=json.loads((ROOT/'sources.json').read_text('utf-8'))
     dst=ROOT/'news.json'
@@ -400,6 +426,12 @@ def main():
                     if old.get('imageCheckedAt'):item['imageCheckedAt']=old['imageCheckedAt']
                 articles[item['id']]=item
             print(s['name'],status['status'],len(new),status.get('reason',''),file=sys.stderr)
+    # Eliminar artigos antigos antes de processar fotografias; as fontes
+    # indisponíveis conservam notícias apenas enquanto estiverem no período.
+    active={s['id'] for s in sources}
+    now=NOW()
+    articles={key:a for key,a in articles.items()
+              if a.get('sourceId') in active and recent_article(a,now)}
     # Procurar fotografias dos artigos sem media RSS, com limite por fonte para evitar carga excessiva.
     def inspect_picture(article):
         try:return article,image_in_html(request(article['url']),article['url'])
@@ -407,7 +439,7 @@ def main():
     candidates=[]
     for src in sources:
         rows=[a for a in articles.values() if a.get('sourceId')==src['id'] and src.get('mode')!='google-news-rss' and a.get('via')!='Google Notícias' and not a.get('imageUrl') and not a.get('imageCheckedAt')]
-        rows.sort(key=lambda a:a.get('publishedAt') or a.get('firstSeenAt') or '',reverse=True)
+        rows.sort(key=lambda a:a.get('publishedAt') or a.get('googlePublishedAt') or a.get('firstSeenAt') or '',reverse=True)
         candidates.extend(rows[:5])
     if candidates:
         with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
@@ -415,26 +447,12 @@ def main():
                 article['imageCheckedAt']=STAMP()
                 if photo:article['imageUrl']=photo
     print('Radar: '+str(sum(bool(a.get('imageUrl')) for a in articles.values()))+' artigos com fotografia original',file=sys.stderr)
-    cutoff=NOW()-dt.timedelta(days=60)
-    active={s['id'] for s in sources}
-    filtered=[]
-    for a in articles.values():
-        if a.get('sourceId') not in active:continue
-        if a.get('via')=='Google Notícias':
-            try:
-                gtime=dt.datetime.fromisoformat(a['googlePublishedAt'].replace('Z','+00:00'))
-                if gtime<NOW()-dt.timedelta(days=7):continue
-            except (KeyError,ValueError,TypeError):continue
-        try:
-            ts=dt.datetime.fromisoformat((a.get('publishedAt') or a['firstSeenAt']).replace('Z','+00:00'))
-            if ts<cutoff:continue
-        except (ValueError,TypeError,KeyError):continue
-        filtered.append(a)
+    filtered=list(articles.values())
     final=[]
     for source in active:
         rows=[a for a in filtered if a['sourceId']==source]
         rows.sort(key=lambda a:a.get('publishedAt') or a.get('firstSeenAt') or '',reverse=True)
-        final.extend(rows[:100])
+        final.extend(rows)
     final.sort(key=lambda a:a.get('publishedAt') or a.get('googlePublishedAt') or a.get('firstSeenAt') or '',reverse=True)
     data={'schemaVersion':1,'updatedAt':STAMP(),'sourceCount':len(sources),'sources':[statuses[s['id']] for s in sources],'articles':final}
     dst.write_text(json.dumps(data,ensure_ascii=False,separators=(',',':')),encoding='utf-8')

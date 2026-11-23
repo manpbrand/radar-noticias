@@ -23,12 +23,29 @@ function article(a){
  const cover='<a class="article-image" target="_blank" rel="noopener noreferrer" href="'+url+'" aria-label="Abrir notícia original: '+esc(a.title)+'"><span class="source-avatar">'+esc(abbr)+'</span>'+(image!=='#'?'<img src="'+esc(image)+'" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" width="116" height="82">':'')+'</a>';
  return '<article class="article" data-id="'+esc(a.id)+'">'+cover+'<div class="article-content"><div class="article-meta"><span class="publisher">'+esc(src.name)+'</span><span>·</span><time>'+esc(date)+'</time><span>·</span><span>'+esc(src.category)+'</span></div><h3><a target="_blank" rel="noopener noreferrer" href="'+url+'">'+esc(a.title)+'</a></h3>'+(a.summary?'<p>'+esc(a.summary)+'</p>':'')+'</div><div class="article-controls"><button class="save-btn '+(saved?'saved':'')+'" data-save="'+esc(a.id)+'" aria-label="'+(saved?'Remover dos guardados':'Guardar notícia')+'">'+(saved?'★':'☆')+'</button></div></article>';
 }
+const FIVE_DAYS_MS=5*24*60*60*1000;
+const portugalDay=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Lisbon',year:'numeric',month:'2-digit',day:'2-digit'});
+function recentOnly(articles){
+ const now=new Date(),lower=now.getTime()-FIVE_DAYS_MS;
+ const parts=Object.fromEntries(portugalDay.formatToParts(now).map(p=>[p.type,p.value]));
+ const todayUtc=Date.UTC(Number(parts.year),Number(parts.month)-1,Number(parts.day));
+ const today=new Date(todayUtc).toISOString().slice(0,10);
+ const minDay=new Date(todayUtc-4*24*60*60*1000).toISOString().slice(0,10);
+ return articles.filter(a=>{
+  if(!a||!a.id||!a.url||!a.title)return false;
+  if(a.datePrecision==='day'&&a.localDate)return a.localDate>=minDay&&a.localDate<=today;
+  const stamp=a.datePrecision==='google'||a.via==='Google Notícias'?a.googlePublishedAt:(a.publishedAt||a.firstSeenAt);
+  const date=valid(stamp);
+  return date!==null&&date.getTime()>=lower&&date.getTime()<=now.getTime()+5*60*1000;
+ });
+}
 function render(){
  document.documentElement.classList.toggle('theme-dark',pref.theme==='dark');
  const categoryOrder=['FC Porto','Desporto','Futebol','Ciclismo','Ténis','Futsal','F1','Hóquei em patins','Música','Tecnologia','Atualidade','Atualidade local','Xadrez'];
  const categoryIndex=c=>{const n=categoryOrder.indexOf(c);return n<0?categoryOrder.length:n};
  const cats=[...new Set(data.sources.map(s=>s.category).filter(Boolean))].sort((a,b)=>categoryIndex(a)-categoryIndex(b)||a.localeCompare(b,'pt'));
- $('#stat-articles').textContent=data.articles.length.toLocaleString('pt-PT');
+ const recentArticles=recentOnly(data.articles);
+ $('#stat-articles').textContent=recentArticles.length.toLocaleString('pt-PT');
  $('#stat-sources').textContent=$('#sources-number').textContent=data.sources.length;
  $('#hero-sources').textContent=$('#about-sources').textContent=data.sources.length;
  $('#stat-active').textContent=data.sources.filter(s=>s.status==='ok').length;
@@ -39,7 +56,7 @@ function render(){
  const orderedSources=[...data.sources].sort((a,b)=>categoryIndex(a.category)-categoryIndex(b.category)||a.name.localeCompare(b.name,'pt'));
  const groupedSources=cats.map(cat=>'<div class="source-group-header"><span>'+esc(cat)+'</span><span class="source-group-total">'+orderedSources.filter(s=>s.category===cat).length+'</span></div>'+orderedSources.filter(s=>s.category===cat).map(sourceHtml).join('')).join('');
  $('#source-list').innerHTML=sourceHtml({id:'all',name:'Todas as fontes',status:'ok'})+groupedSources;
- let list=data.articles.filter(a=>a&&a.id&&a.url&&a.title);
+ let list=recentArticles;
  if(pref.selectedSource!=='all')list=list.filter(a=>a.sourceId===pref.selectedSource);
  if(pref.category!=='all')list=list.filter(a=>lookup(a.sourceId).category===pref.category);
  if(pref.view==='saved')list=list.filter(a=>pref.saved.includes(a.id));
@@ -51,18 +68,18 @@ function render(){
  const sortableTime=a=>new Date(a.datePrecision==='google'?a.googlePublishedAt:a.publishedAt).getTime();
  exact.sort((a,b)=>direction*(sortableTime(a)-sortableTime(b)));
  other.sort((a,b)=>direction*(a.localDate||a.firstSeenAt||'').localeCompare(b.localDate||b.firstSeenAt||''));
- $('#article-list').innerHTML=exact.length?exact.map(article).join(''):'<div class="empty"><div class="empty-orbit">⌁</div><h3>'+(!data.articles.length?'A aguardar notícias reais':'Sem notícias com estes filtros')+'</h3><p>'+(!data.articles.length?'A recolha automática ainda não produziu artigos. Consulta o estado das fontes.':'Experimenta alterar a categoria, a pesquisa ou a publicação.')+'</p></div>';
+ $('#article-list').innerHTML=exact.length?exact.map(article).join(''):'<div class="empty"><div class="empty-orbit">⌁</div><h3>'+(!recentArticles.length?'Sem notícias recentes':'Sem notícias com estes filtros')+'</h3><p>'+(!recentArticles.length?'Não há notícias dentro da janela dos últimos 5 dias. Consulta o estado das fontes.':'Experimenta alterar a categoria, a pesquisa ou a publicação.')+'</p></div>';
  $('#undated-wrap').hidden=!other.length;$('#undated-count').textContent='('+other.length+')';$('#undated-list').innerHTML=other.map(article).join('');
  $('#section-title').firstChild.textContent=pref.view==='saved'?'Guardadas ':pref.selectedSource!=='all'?lookup(pref.selectedSource).name+' ':'Últimas notícias ';
- $('#result-count').textContent=list.length+' artigos';$('#nav-all').textContent=data.articles.length;
- $('#nav-saved').textContent=data.articles.filter(a=>pref.saved.includes(a.id)).length;
+ $('#result-count').textContent=list.length+' artigos';$('#nav-all').textContent=recentArticles.length;
+ $('#nav-saved').textContent=recentArticles.filter(a=>pref.saved.includes(a.id)).length;
  $$('[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===pref.view));
  $$('[data-mobile-view]').forEach(el=>el.classList.toggle('active',el.dataset.mobileView===pref.view));
  $('#compact').classList.toggle('active',pref.compact);
  $$('#article-list,#undated-list').forEach(el=>el.classList.toggle('compact-mode',pref.compact));
  $('#sort').value=pref.sort;$('#search').value=pref.query;
  const date=valid(data.updatedAt),stale=!date||Date.now()-date.getTime()>120*60000;
- $('#freshness').textContent=(date?'Última recolha: '+format.format(date):'Ainda não foi executada a recolha inicial')+' · Artigos via Google Notícias mostram o horário indicado pelo Google; artigos sem hora confirmada ficam separados.';
+ $('#freshness').textContent=(date?'Última recolha: '+format.format(date):'Ainda não foi executada a recolha inicial')+' · Apenas últimos 5 dias. Google Notícias apresenta o horário do Google; artigos sem hora confirmada ficam separados.';
  $('#health-pill').classList.toggle('offline',stale);
  $('#health-pill').innerHTML='<span class="status-led"></span>'+(stale?'A aguardar atualização':'Dados atualizados');
  save();

@@ -26,12 +26,22 @@ Se o GitHub bloquear a publicação por causa de permissões, verifica em `Setti
 - Alguns sites podem bloquear acesso RSS ou não ter RSS. São classificados como `sem_rss` ou `erro`. Não inventamos artigos.
 - O GitHub pode **desativar ações agendadas após 60 dias de inatividade** num repositório público; reativa a tarefa em Actions se necessário.
 
+## Janela de notícias: últimos cinco dias
+
+- Os artigos publicados com data e hora são mantidos apenas durante **120 horas** a contar do respetivo instante de publicação.
+- Nos artigos recolhidos através do Google Notícias, aplica-se o instante do Google, claramente identificado como não oficial.
+- Quando só existe a **data**, são considerados os cinco dias civis mais recentes em Portugal, incluindo o dia atual.
+- Quando não existe data de publicação, é utilizada a **primeira deteção** apenas para limitar a antiguidade; não se afirma que o artigo tenha sido publicado nesse período.
+- A página aplica o mesmo limite de forma independente, mesmo se o GitHub Actions se atrasar ou o navegador tiver uma versão antiga do ficheiro de dados.
+- As notícias guardadas deixam de aparecer quando ultrapassam esse intervalo. A lista local de favoritos não é apagada.
+- O histórico antigo é retirado do ficheiro de notícias na próxima execução bem-sucedida do GitHub Actions.
+
 ## Funcionalidades
 
 - Página adaptada a Chrome Windows e Safari iPhone (PWA instalável).
 - Feed por ordem decrescente de data/hora original, pesquisa, categorias, filtragem por fontes, notícias guardadas, modo compacto, tema escuro.
 - Estado de cada fonte, contagem de notícias e data de atualização.
-- Persistência de notícias no repositório, com deduplicação e retenção de 60 dias, até 100 notícias por fonte.
+- Persistência de notícias no repositório, com deduplicação e retenção de 5 dias para notícias com hora conhecida (120 horas), ou dos últimos cinco dias civis para artigos com apenas a data. Artigos sem data original são limitados pela primeira deteção; a consulta aos feeds não garante a recuperação de todas as notícias de cada site.
 - As notícias guardadas são locais ao navegador, não sincronizadas entre dispositivos.
 - Os feeds são públicos; não há passwords, contas externas, paywalls contornados nem scraping agressivo.
 
